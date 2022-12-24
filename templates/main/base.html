@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" class="no-js">
+
+
+<head>
+	<!-- Basic need -->
+	<title>Open Pediatrics</title>
+	<meta charset="UTF-8">
+	<meta name="description" content="">
+	<meta name="keywords" content="">
+	<meta name="author" content="">
+	<link rel="profile" href="#">
+
+    <!--Google Font-->
+    <link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Dosis:400,700,500|Nunito:300,400,600' />
+	<!-- Mobile specific meta -->
+	<meta name=viewport content="width=device-width, initial-scale=1">
+	<meta name="format-detection" content="telephone-no">
+
+	<!-- CSS files -->
+	<link rel="stylesheet" href="{% static 'css/plugins.css' %}">
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+<body>
+
+    {% include 'main/header.html' %}
+    {% block content %}
+
+    {% endblock content %}
+	{% comment  %}{% include 'movies/lastNews.html' %}{% endcomment %}
+	
+	{% include 'main/footer.html' %}
+</body>
+
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/plugins.js' %}"></script>
+<script src="{% static 'js/plugins2.js' %}"></script>
+<script src="{% static 'js/custom.js' %}"></script>
+
+
+<script type="text/javascript" >
+	$("#signupForm").on("submit",function(){
+		const username_reg=$("#username-2").val()
+		const email_reg=$("#email-2").val()
+		const password1_reg=$("#password-2").val()
+		const password2_reg=$("#repassword-2").val()
+		const url="{% url 'register' %}"
+
+		const Csrf=$('input[name=csrfmiddlewaretoken]').val()
+		console.log(Csrf)
+		console.log(email_reg)
+		console.log(username_reg)
+		console.log(password2_reg)
+		console.log(url)
+		<!-- $.ajax({
+			type:"POST",
+			url:url,
+			contentType: false,	
+			data:{
+				"csrfmiddlewaretoken":Csrf,
+				"username":username_reg,
+				"email":email_reg,
+				"password":password1_reg,
+				"password2":password2_reg
+			},
+			cache: false,
+			processData:false,
+			
+		}) -->
+	})
+</script>
+</html>

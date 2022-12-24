@@ -1,0 +1,41 @@
+
+    <div class="login-wrapper"  id="signup-content">
+        <div class="login-content">
+            <a href="#" class="close">x</a>
+            <h3>sign up</h3>
+            <form method="post" action="#" id="signupForm">
+                {% csrf_token %}
+                <div class="row">
+                    <label for="username-2">
+                        Username:
+                        {{form.username}}
+                    </label>
+                </div>
+            
+                <div class="row">
+                    <label for="email-2">
+                        your email:
+                        {{form.email}}
+                    </label>
+                </div>
+                <div class="row">
+                    <label for="password-2">
+                        Password:
+                        {{form.password}}
+                    </label>
+                </div>
+                <div class="row">
+                    <label for="repassword-2">
+                        re-type Password:
+                        {{form.password2}}
+                    </label>
+                </div>
+            <div class="row">
+                <button type="submit">sign up</button>
+            </div>
+            </form>
+
+            
+        </div>
+    </div>
+
