@@ -17,21 +17,22 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth import login,logout,authenticate
 from accounts.forms import SignupForm
 from accounts.models import User
 from django.core.mail import EmailMessage
 from django.contrib.sites.shortcuts  import get_current_site
 from django.template.loader import render_to_string
-
+from .utils import handle_paginnator
 
 
 
 def movieList(request):
 
-    movies=Movie.objects.select_related("genre"). prefetch_related("tag","days","times","booked_seats"
-        ) .all().order_by("-timeAdded")
-    
+    movies=Movie.objects. prefetch_related("genre","tag","days","times","booked_seats"
+        ).annotate(avg=Avg("comment__rating")).all().order_by("-timeAdded")
+
+    for m in movies:
+        print(m.avg,type(m.avg))
     contex={
         'object_list':movies
     }
@@ -74,44 +75,23 @@ def movieList(request):
 
 
 
-# class MoviesList(ListView):
-
-#     template_name: str="movies/index.html"
-
-#     def get_queryset(self) :
-
-#         return Movie.objects.select_related("genre"). prefetch_related("tag","days","times","booked_seats"
-#         ) .all().order_by("-timeAdded")
-    
-#     def get_context_data(self, **kwargs) :
-
-#         movies=Movie.objects.select_related("genre"). prefetch_related("tag","days","times","booked_seats"
-#         ).all()
-#         filtered=[i for i in movies if i.is_parent==True]
-#         print(filtered)
-
-    
-#         return super().get_context_data(**kwargs)
-
 
 
 class  MovieDetail(View):
 
-    def get(self,request,movie_id,*args,**kwargs):
+
+    def get(self,request,movie_id,page=None,page_for_relatedMovies=None,*args,**kwargs):
 
     
-        movie=Movie.objects.select_related("genre"). prefetch_related("tag","days","times","booked_seats"
-        ).get(pk=movie_id)
-
-        # content_id=ContentType.objects.get(app_label="movies",model="movie")
+        # movie=Movie.objects. prefetch_related("genre","tag","days","times","booked_seats"
+        # ).exclude(parent=None).get(pk=movie_id)
         
 
-        movie=Movie.objects.select_related("genre"). prefetch_related("tag","days","times","booked_seats"
+
+        movie=Movie.objects. prefetch_related("genre","tag","days","times","booked_seats"
         ).get(pk=movie_id)
 
-        # comments=Comment.objects.select_related('movie','user').filter(
-        #     movie=movie
-        # )
+
             
         movieImages=None
         if movie.movieimage_set.all():
@@ -121,32 +101,119 @@ class  MovieDetail(View):
         if movie.movievideo_set.all():
             movieVideos=movie.movievideo_set.all()[:1]
 
+
+        page=self.request.GET.get("page",1)
+        per_page=self.request.GET.get("per_page",2)
+        filter_status=self.request.GET.get("status","Rating_Ascending")
+
         comments=None
-        avg=0
+        res=None
+        how_to_order=""
 
         if movie.comment_set.all():
-            comments=Comment.objects.select_related("user","movie",).prefetch_related("tags") .filter(
-                movie=movie
-            )
-        
+
+            if filter_status:
+                match filter_status:
+                    case "Rating_Ascending":
+                        how_to_order="-rating"
+                    case "Rating_Descending":
+                        how_to_order="rating"
+                    case "Release_date_Descending":
+                        how_to_order="created"
+                    case "Release_date_Ascending":
+                        how_to_order="-created"
+                    
+
+                comments=Comment.objects.select_related("user","movie",).prefetch_related("tags") .filter(
+                        Q(movie=movie)
+                    ).order_by(how_to_order)
+
+                res=handle_paginnator(comments,per_page,page)
+
+        avg=0
         findAvg=Comment.objects.select_related("user","movie",).prefetch_related("tags") .filter(
                 movie=movie
             ).aggregate(
                 avg=Avg("rating")
             )
+
         if findAvg["avg"] is not None:
-                avg=float(findAvg["avg"])
+                avg=round(float(findAvg["avg"]),1)
         
+        last_comment=Comment.objects.select_related("user","movie").prefetch_related("tags").filter(
+            movie=movie
+        ).last()
+
+        movie_genres_ids=[]
+        for g in movie.genre.all():
+            movie_genres_ids.append(g.id)
         
-        
+        page_for_relatedMovies=self.request.GET.get("page_for_relatedMovies",1)
+        per_page_relatedMovies=self.request.GET.get("per_page_relatedMovies",2)
+        filter_status_relatedMovies=self.request.GET.get("status_for_relatedMovies","Rating_Ascending")
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        print(filter_status_relatedMovies)
+        print(per_page_relatedMovies)
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+
+
+        res2=None
+        how_to_order2=""
+        related_movies=None
+
+        if filter_status_relatedMovies:
+
+            match filter_status_relatedMovies:
+                case "Rating_Ascending":
+                    how_to_order2="-avg"
+                case "Rating_Descending":
+                    how_to_order2="avg"
+                case "Release_date_Descending":
+                    how_to_order2="created"
+                case "Release_date_Ascending":
+                    how_to_order2="-created" 
+            
+            related_movies=Movie.objects.select_related(
+                        "parent","sponsor"
+                    ).prefetch_related(
+                        "genre","tag","days","times","booked_seats"
+                    ).annotate(
+                        avg=Avg("comment__rating")).filter(
+                        ~Q(id=movie.id) &Q(genre__in=movie_genres_ids)
+                    ).order_by(how_to_order2)
+
+            res2=handle_paginnator(related_movies,per_page_relatedMovies,page_for_relatedMovies)
+
+
+        related_movies_count=Movie.objects.prefetch_related(
+            "genre","tag","days","times","booked_seats"
+        ). exclude(
+                parent=None
+        ). filter(
+
+            ~Q(id=movie.id) &Q(genre__in=movie_genres_ids)
+        )
 
         contex={
+
             'movie':movie,
             "movieImages":movieImages,
             "movieVideos":movieVideos,
-            "comments":comments,
+            "comments":res,
             "form":CommentForm(),
-            "avg":avg
+            "avg":avg,
+            'per_page':per_page,
+            'per_page_relatedMovies':per_page_relatedMovies,
+            'filter_status':filter_status,
+            'filter_status_relatedMovies':filter_status_relatedMovies,
+            'last_comment':last_comment,
+            'related_movies':res2,
+            'related_movies_count':related_movies_count,
+
 
         }
 
@@ -154,32 +221,16 @@ class  MovieDetail(View):
         return render(request,"movies/moviesingle.html",contex)
     
 
-
-
-
-
     def post(self,request,movie_id,*args,**kwargs):
 
 
-        movie=get_object_or_404(Movie.objects.select_related(
-            "parent","genre","sponsor"
-            ).prefetch_related(
-                "tag","days","booked_seats","times","actors","comment_set"
+        movie=get_object_or_404(Movie.objects.prefetch_related(
+                "tag","days","booked_seats","times","actors","comment_set","genre"
             ),id=movie_id)
-
-
-
-        print("POSTTT")
-        # form=CommentForm(self.request.POST)
-        # if form.is_valid():
 
         body=self.request.POST.get("body")
         rating=self.request.POST.get("rating")
-        print("$$$$$$$$$")
-        print("$$$$$$$$$")
-        print(type(rating))
-        print("$$$$$$$$$")
-        print("$$$$$$$$$")
+
 
         
         new_comment=Comment(
@@ -195,18 +246,149 @@ class  MovieDetail(View):
             "movieId":new_comment.movie.id,
             "imageProfile":new_comment.user.profile.image.url,
             "created":new_comment.created,
+            "rating":new_comment.rating
             # "commentDisplay":new_comment.get_rate_show_display
         })
 
-
         if request.is_ajax():
-            print("AJAXXXXXX")
-            print("AJAXXXXXX")
-            # print(new_comment)
-            print(new_comment.method_show_display())
-            print("AJAXXXXXX")
-            print("AJAXXXXXX")
+
             return JsonResponse(x,safe=False)
         return redirect("movieDetail",movie.id)
 
-        
+
+
+
+def relatedReviewView(request,movie_id):
+
+    movie=get_object_or_404(Movie.objects.select_related(
+            "parent","sponsor"
+        ).prefetch_related(
+             "genre","tag","days","times","booked_seats"
+    ),pk=movie_id)
+
+    movie_genres_ids=[]
+    for g in movie.genre.all():
+        movie_genres_ids.append(g.id)
+
+    related_movies=Movie.objects.select_related(
+            "parent","sponsor"
+        ).prefetch_related(
+            "genre","tag","days","times","booked_seats"
+        ).annotate(
+            avg=Avg("comment__rating")).filter(
+
+            ~Q(id=movie.id) &Q(genre__in=movie_genres_ids)
+        )
+    
+    related_movies_count=Movie.objects.prefetch_related(
+            "genre","tag","days","times","booked_seats"
+        ). exclude(
+                parent=None
+        ). filter(
+
+            ~Q(id=movie.id) &Q(genre__in=movie_genres_ids)
+        )
+
+    contex={
+        'related_movies':related_movies,
+        'movie':movie,
+        'related_movies_count':related_movies_count
+    }
+    
+    return render(request,"movies/movieRelatedView.html",contex)
+
+
+
+
+class AllMoviesView(View):
+
+    def get(self,request,*args,**kwargs):
+
+        page=self.request.GET.get("page",1)
+        perPage=self.request.GET.get("perPage",2)
+        filter_status=self.request.GET.get("status","Rating_Ascending")
+
+        movies=None
+        res=None
+        how_to_order=None
+
+        if filter_status:
+            match filter_status:
+                case "Rating_Ascending":
+                        how_to_order="-avg"
+                case "Rating_Descending":
+                    how_to_order="avg"
+                case "Release_date_Descending":
+                    how_to_order="created"
+                case "Release_date_Ascending":
+                    how_to_order="-created"
+            
+            movies=Movie.objects.select_related(
+                    "sponsor","parent"
+                ).prefetch_related(
+                "genre","tag","days","times","booked_seats"
+                ).annotate(
+                    avg=Avg("comment__rating")
+                ).all().order_by(how_to_order)
+            res=handle_paginnator(movies,perPage,page)
+
+        contex={
+
+            'movies':res,
+            'filter_status':filter_status,
+            'perPage':perPage
+        }
+
+        return render(request,"movies/allMovies.html",contex)
+
+
+
+
+
+
+
+
+
+
+
+class AllListMoviesView(View):
+
+    def get(self,request,*args,**kwargs):
+
+        page=self.request.GET.get("page",1)
+        perPage=self.request.GET.get("perPage",2)
+        filter_status=self.request.GET.get("status","Rating_Ascending")
+
+        movies=None
+        res=None
+        how_to_order=None
+
+        if filter_status:
+            match filter_status:
+                case "Rating_Ascending":
+                        how_to_order="-avg"
+                case "Rating_Descending":
+                    how_to_order="avg"
+                case "Release_date_Descending":
+                    how_to_order="created"
+                case "Release_date_Ascending":
+                    how_to_order="-created"
+            
+            movies=Movie.objects.select_related(
+                    "sponsor","parent"
+                ).prefetch_related(
+                "genre","tag","days","times","booked_seats"
+                ).annotate(
+                    avg=Avg("comment__rating")
+                ).all().order_by(how_to_order)
+            res=handle_paginnator(movies,perPage,page)
+
+        contex={
+
+            'movies':res,
+            'filter_status':filter_status,
+            'perPage':perPage
+        }
+
+        return render(request,"movies/movielist.html",contex)
+

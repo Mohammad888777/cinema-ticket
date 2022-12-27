@@ -3,6 +3,6 @@ from . import views
 
 urlpatterns=[
 
-    path("<str:movie_id>/",views.addComment,name="addComment"),
+    # path("<str:movie_id>/",views.addComment,name="addComment"),
     
 ]

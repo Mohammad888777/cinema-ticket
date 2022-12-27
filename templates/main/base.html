@@ -21,7 +21,9 @@
 	<!-- CSS files -->
 	<link rel="stylesheet" href="{% static 'css/plugins.css' %}">
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
-
+	{% block heading %}
+	
+	{% endblock heading %}
 </head>
 <body>
 
@@ -38,6 +40,10 @@
 <script src="{% static 'js/plugins.js' %}"></script>
 <script src="{% static 'js/plugins2.js' %}"></script>
 <script src="{% static 'js/custom.js' %}"></script>
+{% block sc %}
+
+{% endblock sc %}
+
 
 
 <script type="text/javascript" >

@@ -64,4 +64,6 @@ class Comment(models.Model):
     
 
    
-    
+
+
+Newcom=Comment

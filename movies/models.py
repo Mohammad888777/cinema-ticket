@@ -2,6 +2,7 @@ from django.db import models
 from accounts.models import User
 from django.core.validators import FileExtensionValidator
 # from django.contrib.contenttypes.fields import GenericRelation
+# import comments.views
 
 
 class Genres(models.Model):
@@ -10,6 +11,7 @@ class Genres(models.Model):
 
     def __str__(self) -> str:
         return self.genres_name
+
 
 class Tag(models.Model):
 
@@ -35,13 +37,6 @@ class Seat(models.Model):
         return f"{self.occupant_first_name}-{self.occupant_last_name} seat_no {self.seat_no}"
 
 
-
-
-
-
-
-
-
 class Day(models.Model):
 
     day_week=models.CharField(max_length=200,null=True,blank=True)
@@ -59,7 +54,6 @@ class Time(models.Model):
         return self.day_time
 
 
-
 class MovieManager(models.Manager):
 
     def tt(self):
@@ -69,7 +63,6 @@ class MovieManager(models.Manager):
             is_parent=True            
         )
     
-
 
 class CompanySponser(models.Model):
 
@@ -83,13 +76,12 @@ def save_actor_image(instance,filename):
 
     return f'{instance.actor_name}/{filename}'
 
+
 class Role(models.Model):
     role_name=models.CharField(max_length=200)
 
     def __str__(self) -> str:
         return self.role_name
-
-
 
 
 class Actor(models.Model):
@@ -104,30 +96,6 @@ class Actor(models.Model):
         return self.actor_name
 
 
-# class Cast(models.Model):
-
-#     actors=models.ManyToManyField(Actor,blank=True,related_name="actors")
-#     director=models.CharField(max_length=200)
-#     writer=models.CharField(max_length=200)
-#     producer=models.CharField(max_length=200)
-#     photographer=models.CharField(max_length=200)
-#     editor=models.CharField(max_length=200)
-#     cameraman=models.CharField(max_length=200)
-
-#     def __str__(self) -> str:
-#         return self.director
-
-
-
-
-
-
-
-
-
-
-
-
 class Movie(models.Model):
 
     SHOW_TYPE=(
@@ -140,10 +108,10 @@ class Movie(models.Model):
  
     parent=models.ForeignKey("self",on_delete=models.CASCADE,related_name="+",null=True,blank=True)
     name=models.CharField(max_length=200,null=True,blank=True)
-    ticket_price=models.IntegerField(null=True,blank=True)
+    ticket_price=models.IntegerField(null=True,blank=True,default=0)
     user_ip=models.CharField(max_length=200,null=True,blank=True)
     movie_time=models.TimeField(null=True,blank=True)
-    genre=models.ForeignKey(Genres,on_delete=models.CASCADE,related_name="genre",null=True,blank=True)
+    genre=models.ManyToManyField(Genres,related_name="genre",blank=True)
     timeAdded=models.DateTimeField(auto_now_add=True)
     show_type=models.IntegerField(choices=SHOW_TYPE,null=True,blank=True)
     is_seen_by_user=models.BooleanField(default=False,null=True,blank=True)
@@ -160,6 +128,9 @@ class Movie(models.Model):
     booked_seats=models.ManyToManyField(Seat,blank=True)
     year_made=models.IntegerField(null=True,blank=True)
     # ratings = GenericRelation(Rating, related_query_name='foos')
+    language=models.CharField(max_length=200,null=True,blank=True)
+    countryItMade=models.CharField(max_length=200,null=True,blank=True)
+    ageCanSee=models.IntegerField(null=True,blank=True)
 
     actors=models.ManyToManyField(Actor,blank=True,related_name="actors")
     director=models.CharField(max_length=200,null=True,blank=True)
@@ -169,7 +140,8 @@ class Movie(models.Model):
     editor=models.CharField(max_length=200,null=True,blank=True)
     cameraman=models.CharField(max_length=200,null=True,blank=True)
     
-
+    created=models.DateTimeField(auto_now_add=True,null=True)
+    updated=models.DateTimeField(auto_now=True,null=True)
 
     def __str__(self) -> str:
         return self.name
@@ -177,7 +149,7 @@ class Movie(models.Model):
 
     @property
     def children(self):
-        return Movie.objects.select_related("genre"). prefetch_related("tag","days","times","booked_seats").filter(
+        return Movie.objects. prefetch_related("genre","tag","days","times","booked_seats").filter(
             parent=self            
         )
     

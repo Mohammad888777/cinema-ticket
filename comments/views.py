@@ -8,9 +8,9 @@ from .forms import CommentForm
 def addComment(request,movie_id):
 
     movie=get_object_or_404(Movie.objects.select_related(
-        "parent","genre","sponsor"
+        "parent","sponsor"
     ).prefetch_related(
-        "tag","days","booked_seats","times","actors","comment_set"
+        "tag","days","booked_seats","times","actors","comment_set","genre"
     ),id=movie_id)
 
     if request.method=="POST":

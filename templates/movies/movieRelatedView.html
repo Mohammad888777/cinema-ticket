@@ -1,0 +1,143 @@
+<div id="moviesrelated" class="tab">
+    <div class="row">
+        <h3>Related Movies To</h3>
+        <h2>{{movie.name}}</h2>
+        <div class="topbar-filter">
+        <p>Found <span>{{related_movies_count.count}} movies</span> in total</p>
+        <label>Sort by:</label>
+
+        <select id="related_status" >
+
+            {% if filter_status == "Rating_Ascending" %}
+                <option  value="Rating_Ascending" selected>Rating Ascending</option>
+            {% else %}
+                <option  value="Rating_Ascending">Rating Ascending</option>
+            {% endif %}
+
+            {% if filter_status == "Rating_Descending" %}
+                <option  value="Rating_Descending" selected="selected" >Rating Descending</option>
+            {% else %}
+                <option  value="Rating_Descending">Rating Descending</option>
+            {% endif %}
+
+            {% if filter_status == "Release_date_Descending" %}
+                <option  value="Release_date_Descending" selected="selected">Release date Descending</option>
+            {% else %}
+                <option  value="Release_date_Descending">Release date Descending</option>
+            {% endif %}
+
+
+            {% if filter_status == "Release_date_Ascending" %}
+                <option  value="Release_date_Ascending" selected="selected">Release date Ascending</option>
+            {% else %}
+                <option  value="Release_date_Ascending">Release date Ascending</option>
+            {% endif %}
+
+        </select>
+    </div>
+
+    {% for m in related_movies %}
+        {% if m != movie and m.parent != None %}
+            <div class="movie-item-style-2">
+                <img src="{{m.poster.url}}" alt="">
+                <div class="mv-item-infor">
+                    <h6><a href="{% url 'movieDetail' m.id %}">{{m.name}} <span>({{m.year_made}})</span></a></h6>
+                    <p class="rate"><i class="ion-android-star"></i><span>{{m.avg|floatformat:"1"}}</span> /10</p>
+                    <p class="describe">{{m.description}}</p>
+                    <p class="run-time"> Run Time: {{m.movie_time}}    .     <span>MMPA: PG-{{m.ageCanSee}}</span>    .     <span>Release: {{m.timeAdded}}</span></p>
+                    <p>Director: <a href="#">{{m.director}}</a></p>
+                    <p>Stars: 
+                        {% for star in m.actors.all %}
+                            {% if star.is_star %}
+                                <p><a href="#">{{star.actor_name}}</a></p>
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+
+        <div class="topbar-filter">
+            <label>Movies per page:</label>
+
+            <select id="per_page_relatedMovies" >
+
+                {% if per_page_relatedMovies == "2" %}
+                    <option value="2" selected="selected" >2 Movies</option>
+                {% else %}
+                    <option value="2">2 Movies</option>
+                {% endif %}
+
+                {% if per_page_relatedMovies == "3" %}
+                    <option value="3" selected="selected" >3 Movies</option>
+                {% else %}
+                    <option value="3">3 Movies</option>
+                {% endif %}
+
+            </select>
+
+            <div class="pagination2">
+
+                <!-- <span>Page 1 of {{related_movies.num_pages}}:</span> -->
+
+                {% if related_movies.has_other_pages %}
+                    {% if related_movies.has_previous %}
+                        <a  id="{{related_movies.previous_page_number}}">previous</a>
+                    {% endif %}
+                    {% for page in related_movies.paginator.page_range %}
+
+                            {% if page == related_movies.number %}
+                                <a id="{{page}}"  class="active">{{page}}</a>
+                            {% else %}
+                                <a id="{{page}}" >{{page}}</a>
+                            {% endif %}
+                    {% endfor %}
+
+                    {% if related_movies.has_next %}
+                        <a  id="{{related_movies.next_page_number}}">next</a>
+                    {% endif %}
+
+                {% endif %}
+            </div>
+
+            <script type="text/javascript" >
+
+                console.log($("#per_page_relatedMovies").val(),"VAAAAALLLL")
+
+                $("#related_status").change(function(e){
+                        e.preventDefault()
+
+                        var per_page_relatedMovies=$("#per_page_relatedMovies").val()
+                        var status2=$("#related_status").val()
+
+						window.location.href="?page_for_relatedMovies=1&per_page_relatedMovies="+per_page_relatedMovies+"&status_for_relatedMovies="+status2
+
+                });
+
+
+                $("#per_page_relatedMovies").change(function(e){
+                    e.preventDefault()
+                    var per_page_relatedMovies=$("#per_page_relatedMovies").val()
+                    var status2=$("#related_status").val()
+
+                    window.location.href="?page_for_relatedMovies=1&per_page_relatedMovies="+per_page_relatedMovies+"&status_for_relatedMovies="+status2
+
+                })
+
+
+
+                $(".pagination2 a").click(function(){
+                    var page=this.id
+                    var per_page_relatedMovies=$("#per_page_relatedMovies").val()
+                    var status2=$("#related_status").val()
+                    window.location.href="?page_for_relatedMovies="+page+"&per_page_relatedMovies="+per_page_relatedMovies+"&status_for_relatedMovies="+status2
+                })
+
+
+            </script>
+
+        </div>
+    </div>
+</div>

@@ -123,7 +123,7 @@
 							Home <i class="fa fa-angle-down" aria-hidden="true"></i>
 							</a>
 							<ul class="dropdown-menu level1">
-								<li><a href="index-2.html">Home 01</a></li>
+								<li><a href="{% url 'movies' %}">Home 01</a></li>
 								<li><a href="homev2.html">Home 02</a></li>
 								<li><a href="homev3.html">Home 03</a></li>
 							</ul>
@@ -151,9 +151,11 @@
 								{% forNavbar %}
 							<!-- </ul> -->
 						<!-- </li> -->
-
+						<li><a href="{% url 'allMovies' %}">All Movies</a></li>
 						
 
+						
+							
 						<li class="dropdown first">
 							<a class="btn btn-default dropdown-toggle lv1" data-toggle="dropdown" data-hover="dropdown">
 							celebrities <i class="fa fa-angle-down" aria-hidden="true"></i>
@@ -217,4 +219,5 @@
 			<input type="text" placeholder="Search for a movie, TV Show or celebrity that you are looking for">
 	    </div>
 	</div>
+	
 </header>

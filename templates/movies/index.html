@@ -4,7 +4,6 @@
 
 	
 
-<!-- END | Header -->
 
 <div class="slider movie-items">
 	<div class="container">
@@ -31,7 +30,7 @@
 									<span class="blue"><a href="#">{{item.genre.genres_name}}</a></span>
 								</div>
 								<h6><a href="{% url 'movieDetail' item.id %}">{{item.name}}</a></h6>
-								<p><i  class="ion-android-star"></i><span style="color: black;">{{item.point}}</span> <span style="color: black;">/10</span></p>
+								<p><i  class="ion-android-star"></i><span style="color: black;">{{item.avg|floatformat:"1"}}</span> <span style="color: black;">/10</span></p>
 							</div>
 						</div>
 					
