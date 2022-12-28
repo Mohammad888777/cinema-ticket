@@ -13,7 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import login,logout,authenticate
-
+from profiles.models import Profile
 
 
 
@@ -58,8 +58,6 @@ def register(request):
         return render(request,"accounts/register.html",contex)
 
 
-    
-
             
 def activate(request,uidb64,token):
 
@@ -77,7 +75,6 @@ def activate(request,uidb64,token):
     else:
         messages.error(request,"your activation code is incorrect send again")
         return redirect("register")
-
 
  
 
@@ -112,3 +109,9 @@ def loginView(request):
     
 
     return render(request,"accounts/login.html")
+
+
+
+def logoutView(request):
+    logout(request)
+    return redirect("movies")

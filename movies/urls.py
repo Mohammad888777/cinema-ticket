@@ -4,12 +4,20 @@ from . import views
 urlpatterns=[
 
     path("",views.movieList,name="movies"),
-    path("allMovies",views.AllMoviesView.as_view(),name="allMovies"),
-    path("allListMovies",views.AllListMoviesView.as_view(),name="allListMovies"),
-    path("movieDetail/<str:movie_id>/",views.MovieDetail.as_view(),name="movieDetail"),
-    # path("movieDetail/<str:movie_id>/<str:page>/",views.MovieDetail.as_view(),name="movieDetail"),
 
-    # path("relatedReviewView/<str:movie_id>/",views.relatedReviewView,name="relatedReviewView"),
+
+    path("allMovies",views.AllMoviesView.as_view(),name="allMovies"),
+    path("allMoviesSearch",views.AllMovieSearch.as_view(),name="allMoviesSearch"),
+
+
+
+    path("allListMovies",views.AllListMoviesView.as_view(),name="allListMovies"),
+    path("allListMoviesSearch",views.AllListMoviesSearch.as_view(),name="allListMoviesSearch"),
+
+
+
+
+    path("movieDetail/<str:movie_id>/",views.MovieDetail.as_view(),name="movieDetail"),
 
     
 ]

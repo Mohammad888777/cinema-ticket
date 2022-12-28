@@ -3,6 +3,8 @@ from accounts.models import User
 from django.core.validators import FileExtensionValidator
 # from django.contrib.contenttypes.fields import GenericRelation
 # import comments.views
+from django.db.models import Q,Avg
+
 
 
 class Genres(models.Model):
@@ -167,8 +169,7 @@ class Movie(models.Model):
     is_parent2.boolean=True
     objects=MovieManager()
 
-    def averageReview(self):
-        pass
+
 
 
 

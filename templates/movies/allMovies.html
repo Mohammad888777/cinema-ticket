@@ -176,46 +176,158 @@
                 <div class="sidebar">
                     <div class="searh-form">
                         <h4 class="sb-title">Search for movie</h4>
-                        <form class="form-style-1" action="#">
+
+
+
+                        <form id="boo"  class="form-style-1" method="get" action="{% url 'allMoviesSearch' %}">
                             <div class="row">
                                 <div class="col-md-12 form-it">
                                     <label>Movie name</label>
-                                    <input type="text" placeholder="Enter keywords">
+                                    <input type="text" value="{{movieName}}" name="movieName" id="movieName" placeholder="Enter keywords">
                                 </div>
                                 <div class="col-md-12 form-it">
                                     <label>Genres & Subgenres</label>
                                     <div class="group-ip">
+
                                         <select
-                                            name="skills" multiple="" class="ui fluid dropdown">
-                                            <option value="">Enter to filter genres</option>
-                                            <option value="Action1">Action 1</option>
-                                            <option value="Action2">Action 2</option>
-                                            <option value="Action3">Action 3</option>
-                                            <option value="Action4">Action 4</option>
-                                            <option value="Action5">Action 5</option>
+                                             id="genresSelect">
+                                                    <option selected="selected" value="" ></option>
+                                                    {% if gens == "Action" %}
+                                                        <option value="Action" selected ="selected" >Action</option>
+                                                    {% else %}
+                                                        <option value="Action"  >Action</option>
+                                                    {% endif %}
+
+                                                    {% if gens == "animation" %}
+                                                        <option value="animation" selected ="selected" >animation</option>
+                                                    {% else %}
+                                                        <option value="animation"  >animation</option>
+                                                    {% endif %}
+
+                                                    {% if gens == "horror" %}
+                                                        <option value="horror" selected ="selected" >horror</option>
+                                                    {% else %}
+                                                        <option value="horror"  >horror</option>
+                                                    {% endif %}
+
+                                                    {% if gens == "comedy" %}
+                                                        <option value="comedy" selected ="selected" >comedy</option>
+                                                    {% else %}
+                                                        <option value="comedy"  >comedy</option>
+                                                    {% endif %}
+
+
                                         </select>
+                                        
                                     </div>	
                                 </div>
                                 <div class="col-md-12 form-it">
                                     <label>Rating Range</label>
-                                    <select>
-                                        <option value="range">-- Select the rating range below --</option>
-                                        <option value="saab">-- Select the rating range below --</option>
+
+                                    <select  id="ratingRange">
+
+                                        {% if ratingRange == "1,3" %}
+                                            <option value="1,3" selected="selected" >1 Up To 3</option>
+                                        {% else %}
+                                            <option value="1,3">1 Up To 3</option>
+                                        {% endif %}
+
+                                        {% if ratingRange == "3,5" %}
+                                            <option value="3,5" selected="selected" >3 Up To 5</option>
+                                        {% else %}
+                                            <option value="3,5">3 Up To 5</option>
+                                        {% endif %}
+
+                                        {% if ratingRange == "5,7" %}
+                                            <option value="5,7" selected="selected" >5 Up To 7</option>
+                                        {% else %}
+                                            <option value="5,7">5 Up To 7</option>
+                                        {% endif %}
+
+
+                                        {% if ratingRange == "7,10" %}
+                                            <option value="7,10" selected="selected" >7 Up To 10</option>
+                                        {% else %}
+                                            <option value="7,10">7 Up To 10</option>
+                                        {% endif %}
+                                        
                                     </select>
+                                    
                                 </div>
                                 <div class="col-md-12 form-it">
                                     <label>Release Year</label>
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <select>
-                                                <option value="range">From</option>
-                                                <option value="number">10</option>
+                                            <label for="from">From</label>
+                                            <select id="yearFrom" >
+
+                                                {% if yearFrom == "1990" %}
+                                                    <option value="1990" selected="selected" >1990</option>
+
+                                                {% else %}
+                                                    <option value="1990" >1990</option>
+                                                {% endif %}
+
+                                                {% if yearFrom == "2000" %}
+                                                    <option value="2000" selected="selected" >2000</option>
+
+                                                {% else %}
+                                                    <option value="2000" >2000</option>
+                                                {% endif %}
+
+
+                                                {% if yearFrom == "2010" %}
+                                                    <option value="2010" selected="selected" >2010</option>
+
+                                                {% else %}
+                                                    <option value="2010" >2010</option>
+                                                {% endif %}
+
+
+                                                {% if yearFrom == "2022" %}
+                                                    <option value="2022" selected="selected" >2022</option>
+
+                                                {% else %}
+                                                    <option value="2022" >2022</option>
+                                                {% endif %}
+
+
+
                                             </select>
                                         </div>
                                         <div class="col-md-6">
-                                            <select>
-                                                <option value="range">To</option>
-                                                <option value="number">20</option>
+                                            <label for="from" style="margin-left: 10px!important;">To</label>
+                                            <select id="yearTo">
+
+                                                {% if yearTo == "1990" %}
+                                                    <option value="1990" selected="selected" >1990</option>
+
+                                                {% else %}
+                                                    <option value="1990" >1990</option>
+                                                {% endif %}
+
+                                                {% if yearTo == "2000" %}
+                                                    <option value="2000" selected="selected" >2000</option>
+
+                                                {% else %}
+                                                    <option value="2000" >2000</option>
+                                                {% endif %}
+
+
+                                                {% if yearTo == "2010" %}
+                                                    <option value="2010" selected="selected" >2010</option>
+
+                                                {% else %}
+                                                    <option value="2010" >2010</option>
+                                                {% endif %}
+
+
+                                                {% if yearTo == "2022" %}
+                                                    <option value="2022" selected="selected" >2022</option>
+
+                                                {% else %}
+                                                    <option value="2022" >2022</option>
+                                                {% endif %}
                                             </select>
                                         </div>
                                     </div>
@@ -225,9 +337,37 @@
                                 </div>
                             </div>
                         </form>
+
+                        <script type="text/javascript" >
+
+                            $("#boo").submit(function(e){
+                                e.preventDefault()
+                                console.log("Changed")
+                                console.log("Changed")
+
+                                const ss=$("#genresSelect").val()   
+                                const movie=$("#movieName").val()
+                                const ratingRange=$("#ratingRange").val()
+                                const yearFrom=$("#yearFrom").val()
+                                const yearTo=$("#yearTo").val()
+                                const genres=$("#genresSelect").val()
+
+                                console.log("genres",genres)
+                                console.log("name",movie)
+                                console.log("ratee",ratingRange)
+                                console.log("yearfrom",yearFrom)
+                                console.log("yearTo",yearTo)
+
+                                window.location.href=`http://127.0.0.1:8000/movies/allMoviesSearch?movieName=${movie}&ratingRange=${ratingRange}&yearFrom=${yearFrom}&yearTo=${yearTo}&genre=${genres}`
+                              
+
+                            })
+                        </script>
+
+
                     </div>
                     <div class="ads">
-                        <img src="images/uploads/ads1.png" alt="">
+                        <img src="{% static 'images/uploads/ads1.png' %}" alt="">
                     </div>
                     <div class="sb-facebook sb-it">
                         <h4 class="sb-title">Find us on Facebook</h4>

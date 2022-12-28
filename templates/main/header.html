@@ -201,10 +201,21 @@
 							</ul>
 						</li>                
 						<li><a href="#">Help</a></li>
-						<li class=""><a href="{% url 'login' %}">LOG In</a></li>
-						<li class="btn signupLink" style="color: white;">
-							sign up
+						{% if request.user.is_authenticated %}
+							<li>
+									<a href="{% url 'logout' %}">Logout</a>
 							</li>
+							/
+							<li class=""><a href="{% url 'myProfile' request.user.username %}">Profile</a></li>
+						{% else %}
+							<li class=""><a href="{% url 'login' %}">LOG In</a></li>
+							<li class="btn signupLink" style="color: white;">
+								Signup
+							</li>
+						{% endif %}
+
+
+						
 					</ul>
 				</div>
 			<!-- /.navbar-collapse -->

@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'movies',
     'comments',
     'profiles',
+    'playlists',
 ]
 
 MIDDLEWARE = [

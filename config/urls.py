@@ -11,6 +11,7 @@ urlpatterns = [
     path("movies/",include("movies.urls")),
     path("comments/",include("comments.urls")),
     path("playlists/",include("playlists.urls")),
+    path("profiles/",include("profiles.urls")),
 
     
 ]

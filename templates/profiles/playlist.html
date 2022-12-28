@@ -1,0 +1,115 @@
+{% extends 'main/base.html' %}
+{% block content %}
+{% load static %}
+		{% block heading %}
+		<title>Open Pediatrics</title>
+		<meta charset="UTF-8">
+		<meta name="description" content="">
+		<meta name="keywords" content="">
+		<meta name="author" content="">
+		<link rel="profile" href="#">
+
+		<!--Google Font-->
+		<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Dosis:400,700,500|Nunito:300,400,600' />
+		<!-- Mobile specific meta -->
+		<meta name=viewport content="width=device-width, initial-scale=1">
+		<meta name="format-detection" content="telephone-no">
+
+		<!-- CSS files -->
+		<link rel="stylesheet" href="{% static 'css/plugins.css' %}">
+		<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+		<script src="{% static 'js/jquery.js' %}"></script>
+		<script src="{% static 'js/plugins.js' %}"></script>
+		<script src="{% static 'js/plugins2.js' %}"></script>
+		<script src="{% static 'js/custom.js' %}"></script>
+		{% endblock heading %}
+
+
+
+<div class="hero user-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="hero-ct">
+                    <h1>{{user.profile.user.username}}’s profile</h1>
+                    <ul class="breadcumb">
+                        <li class="active"><a href="{% url 'movies' %}">Home</a></li>
+                        <li> <span class="ion-ios-arrow-right"></span>Profile</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-single userfav_list">
+    <div class="container">
+        <div class="row ipad-width2">
+            {% include 'profiles/profileNavbar.html' %}
+
+            <div class="col-md-9 col-sm-12 col-xs-12">
+                <div class="topbar-filter user">
+                    <p>Found <span>{{playListsLen}} movies</span> in total</p>
+                    <label>Sort by:</label>
+                    <select>
+                        <option value="range">-- Choose option --</option>
+                        <option value="saab">-- Choose option 2--</option>
+                    </select>
+                    <a href="userfavoritelist.html" class="list"><i class="ion-ios-list-outline active"></i></a>
+                    <a  href="userfavoritegrid.html" class="grid"><i class="ion-grid "></i></a>
+                </div>
+                <div class="flex-wrap-movielist user-fav-list">
+                    {% for m in movies %}
+                        <div class="movie-item-style-2">
+                            <img src="{{m.poster.url}}" alt="">
+                            <div class="mv-item-infor">
+                                <h6><a href="{% url 'movieDetail' m.id %}">{{m.name}} <span>({{m.year_made}})</span></a></h6>
+                                <!-- <p class="rate"><i class="ion-android-star"></i><span>8.1</span> /10</p> -->
+                                <p class="describe">{{m.description}}</p>
+                                <p class="run-time"> Run Time: {{m.movie_time}}’    .     <span>MMPA: PG-{{m.ageCanSee}} </span>    .     <span>Release: {{m.timeAdded}}</span></p>
+                                <p>Director: <a href="#">{{m.director}}</a></p>
+                                <p>Stars: 
+                                    {% for s in m.actors.all %} 
+                                        {% if s.is_star %}
+                                            <a href="#">{{s.actor_name}}</a> 
+                                        {% endif %}
+                                    {% endfor %}
+
+                                </p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    
+                </div>		
+                <div class="topbar-filter">
+                    <label>Movies per page:</label>
+                    <select>
+                        <option value="range">5 Movies</option>
+                        <option value="saab">10 Movies</option>
+                    </select>
+                    
+                    <div class="pagination2">
+                        <span>Page 1 of 2:</span>
+                        <a class="active" href="#">1</a>
+                        <a href="#">2</a>
+                        <a href="#">3</a>
+                        <a href="#">...</a>
+                        <a href="#">78</a>
+                        <a href="#">79</a>
+                        <a href="#"><i class="ion-arrow-right-b"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>       
+
+    {% block sc %}
+        <script src="js/jquery.js"></script>
+        <script src="js/plugins.js"></script>
+        <script src="js/plugins2.js"></script>
+        <script src="js/custom.js"></script>
+    {% endblock sc %}
+
+{% endblock content %}

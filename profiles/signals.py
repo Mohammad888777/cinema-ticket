@@ -6,7 +6,11 @@ from django.db.models.signals import post_save
 def auto_create(sender,instance,created,**kwargs):
     if created:
         Profile.objects.create(
-            user=instance
+            user=instance,
+            email=instance.email,
+            username=instance.username,
+            
+
         )
 
 post_save.connect(auto_create,sender=User)
