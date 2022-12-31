@@ -4,7 +4,8 @@ from . import views
 
 urlpatterns=[
 
-    path("addToFav/<str:username>/",views.addToFav,name="addToFav"),
-    path("playlists/<str:username>/",views.PlayListMovies.as_view(),name="playlists"),
+    path("addToFav/<str:username>/<str:movie_id>/",views.addToFav,name="addToFav"),
+    path("Favsplaylists/<str:username>/",views.PlayListMovies.as_view(),name="playlists"),
+    path("ratedMovies/<str:username>/",views.RatedMovies.as_view(),name="ratedMovies"),
     
 ]

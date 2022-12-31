@@ -1,0 +1,33 @@
+Metadata-Version: 2.1
+Name: az-iranian-bank-gateways
+Version: 1.8.3
+Summary: Iranian Bank Gateways for django
+Home-page: https://github.com/ali-zahedi/az-iranian-bank-gateways
+Author: Ali Zahedigol
+Author-email: alizahedigol@gmail.com
+License: BSD License
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Requires-Python: >=3.8
+License-File: LICENSE
+Requires-Dist: six
+Requires-Dist: Django (>=2.2)
+Requires-Dist: pycryptodome (>=3.9.7)
+Requires-Dist: zeep
+Provides-Extra: dev
+Requires-Dist: flake8 ; extra == 'dev'
+Requires-Dist: black ; extra == 'dev'
+Requires-Dist: isort ; extra == 'dev'
+Requires-Dist: pre-commit ; extra == 'dev'
+

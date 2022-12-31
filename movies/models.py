@@ -25,35 +25,57 @@ class Tag(models.Model):
 class Seat(models.Model):
 
 
-    seat_no=models.IntegerField()
-    # seat_no=models.IntegerField()
-    occupant_first_name=models.CharField(max_length=200,)
-    occupant_last_name=models.CharField(max_length=200,)
-    occupant_email_name=models.CharField(max_length=200,)
+    number=models.IntegerField()
+
+    CHOICES=(
+        ("selected","selected"),
+        ("occupied","occupied"),
+        ("not_selected","not_selected"),
+    )
+    movie=models.ForeignKey('Movie',on_delete=models.CASCADE,null=True,blank=True)
+    day=models.ForeignKey('Day',on_delete=models.CASCADE,null=True,blank=True)
+    seat_status=models.CharField(max_length=200,choices=CHOICES,null=True,default="not_selected")
+    
+
+    
+
+
+    occupant_first_name=models.CharField(max_length=200,blank=True,null=True)
+    occupant_last_name=models.CharField(max_length=200,blank=True,null=True)
+    occupant_email_name=models.CharField(max_length=200,blank=True,null=True)
     is_purchased=models.BooleanField(default=False)
     purchase_time=models.DateTimeField(auto_now_add=True)
 
 
 
     def __str__(self) -> str:
-        return f"{self.occupant_first_name}-{self.occupant_last_name} seat_no {self.seat_no}"
+        return str(self.movie)
+
+
+
+
+
+class Time(models.Model):
+
+    time=models.CharField(max_length=200,null=True,blank=True)
+
+    def __str__(self) -> str:
+        return str(self.time)
+    
 
 
 class Day(models.Model):
 
     day_week=models.CharField(max_length=200,null=True,blank=True)
+    times=models.ManyToManyField(Time,related_name="times",blank=True)
+    seats=models.ManyToManyField(Seat,related_name="seats",blank=True)
+    movie=models.ForeignKey('Movie',on_delete=models.CASCADE,null=True,blank=True)
+
 
     def __str__(self) -> str:
-        return self.day_week
+        return self.day_week+' '+str(self.movie)
 
         
-class Time(models.Model):
-
-    day_time=models.CharField(max_length=200,null=True,blank=True)
-
-    def __str__(self) -> str:
-        
-        return self.day_time
 
 
 class MovieManager(models.Manager):
@@ -123,11 +145,11 @@ class Movie(models.Model):
     description=models.TextField(null=True,blank=True)
     tag=models.ManyToManyField(Tag,related_name="tags",blank=True)
     days=models.ManyToManyField(Day,related_name="days",blank=True)
-    times=models.ManyToManyField(Time,related_name="times",blank=True)
+    # times=models.ManyToManyField(Time,related_name="times",blank=True)
     point=models.IntegerField(default=0)
     # cast=models.ForeignKey(Cast,on_delete=models.CASCADE,null=True,related_name="cast")
     sponsor=models.ForeignKey(CompanySponser,on_delete=models.CASCADE,null=True,related_name="sponsor")
-    booked_seats=models.ManyToManyField(Seat,blank=True)
+    # booked_seats=models.ManyToManyField(Seat,blank=True)
     year_made=models.IntegerField(null=True,blank=True)
     # ratings = GenericRelation(Rating, related_query_name='foos')
     language=models.CharField(max_length=200,null=True,blank=True)
@@ -151,7 +173,7 @@ class Movie(models.Model):
 
     @property
     def children(self):
-        return Movie.objects. prefetch_related("genre","tag","days","times","booked_seats").filter(
+        return Movie.objects. prefetch_related("genre","tag","days").filter(
             parent=self            
         )
     
@@ -211,3 +233,44 @@ class MovieVideo(models.Model):
     def __str__(self) -> str:
         return self.movie.name
 
+
+
+
+
+class Order(models.Model):
+    # referrer=models.URLField()
+    ORDER_STATUS=(
+
+        (1,"cancle"),
+        (2,"paid"),
+        (3,"in progress"),
+        
+    )
+
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
+    ip_address=models.CharField(max_length=200,null=True)
+    movie_title=models.CharField(max_length=255)
+    seat_number=models.CharField(max_length=200)
+    order_status=models.CharField(max_length=200,choices=ORDER_STATUS)
+    show_day=models.CharField(max_length=200)
+    total_to_pay=models.CharField(max_length=200,null=True,blank=True)
+    total_count=models.CharField(max_length=200,null=True,blank=True)
+
+
+
+    
+
+
+class Payment(models.Model):
+
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    order=models.ForeignKey(Order,on_delete=models.CASCADE)
+    payment_id=models.CharField(max_length=150)
+    payment_method=models.CharField(max_length=150)
+    amount_paid=models.CharField(max_length=150)
+    status=models.CharField(max_length=150)
+    created=models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+
+        return str(self.payment_id)

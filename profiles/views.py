@@ -35,28 +35,20 @@ class ProfileView(LoginRequiredMixin,View):
         profile=get_object_or_404(Profile.objects.select_related("user"),user__username=username)
         form=ProfileForm(self.request.POST,self.request.FILES,instance=profile)
         changeForm=ChangePassowdForm(self.request.POST)
-
+        
 
         if form.is_valid() and changeForm.is_valid():
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            print(form.cleaned_data.get("image"))
             update=form.save(commit=False)
             update.user=self.request.user
             update.save()
             messages.success(request,"Your Profile Is Updated Now")
             return redirect(self.request.META.get("HTTP_REFERER"))
-
-        # messages.error(request,"Your Form Is Invalid")
-        # return redirect(self.request.META.get("HTTP_REFERER"))
-
-        # if changeForm.is_valid():
-
-        #     if newPassword == newPassword2:
-        #     if user.check_password(oldPassword):
-        #         user.set_password(newPassword)
-        #         user.save()
-        #         messages.success(request,"New Password Is Set Now")
-        #         return redirect("login")
-        #     messages.error(request,"current password is incorrect")
-        #     return redirect(request.META.get("HTTP_REFERER"))
 
         messages.error(request,"Your Form Is Invalid")
         return redirect(self.request.META.get("HTTP_REFERER"))

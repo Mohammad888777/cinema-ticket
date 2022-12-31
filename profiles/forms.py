@@ -10,11 +10,12 @@ class ProfileForm(forms.ModelForm):
     last_name=forms.CharField(required=False,label='',)
     country=forms.CharField(required=False,label='',)
     state=forms.CharField(required=False,label='',)
+    image=forms.ImageField(required=False,label='')
 
     class Meta:
 
         model=Profile
-        fields=["username","email","first_name","last_name","country","state"]
+        fields=["username","email","first_name","last_name","country","state","image"]
 
 
 class ChangePassowdForm(forms.Form):

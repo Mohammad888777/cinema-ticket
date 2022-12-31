@@ -1,0 +1,107 @@
+{% extends 'main/base.html' %}
+{% block content %}
+{% load static %}
+		{% block heading %}
+		<title>Open Pediatrics</title>
+		<meta charset="UTF-8">
+		<meta name="description" content="">
+		<meta name="keywords" content="">
+		<meta name="author" content="">
+		<link rel="profile" href="#">
+
+		<!--Google Font-->
+		<link rel="stylesheet" href='http://fonts.googleapis.com/css?family=Dosis:400,700,500|Nunito:300,400,600' />
+		<!-- Mobile specific meta -->
+		<meta name=viewport content="width=device-width, initial-scale=1">
+		<meta name="format-detection" content="telephone-no">
+
+		<!-- CSS files -->
+		<link rel="stylesheet" href="{% static 'css/plugins.css' %}">
+		<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+		<script src="{% static 'js/jquery.js' %}"></script>
+		<script src="{% static 'js/plugins.js' %}"></script>
+		<script src="{% static 'js/plugins2.js' %}"></script>
+		<script src="{% static 'js/custom.js' %}"></script>
+		{% endblock heading %}
+
+
+<div class="hero user-hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="hero-ct">
+                    <h1>{{profile.user.username}}’s profile</h1>
+                    <ul class="breadcumb">
+                        <li class="active"><a href="{% url 'movies' %}">Home</a></li>
+                        <li> <span class="ion-ios-arrow-right"></span>Profile</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="page-single">
+    <div class="container">
+        <div class="row ipad-width2">
+
+            {% include 'profiles/profileNavbar.html' %}
+
+            <div class="col-md-9 col-sm-12 col-xs-12">
+                <div class="topbar-filter">
+                    <p>Found <span>{{object_list.count}}rates</span> in total</p>
+                    <label>Sort by:</label>
+                    <select>
+                        <option value="range">-- Choose option --</option>
+                        <option value="saab">-- Choose option 2--</option>
+                    </select>
+                </div>
+                {% for c in object_list %}
+                    <div class="movie-item-style-2 userrate">
+                        <img src="{{c.movie.poster.url}}" alt="">
+                        <div class="mv-item-infor">
+                            <h6><a href="#">{{c.movie.name}} <span>({{c.movie.yearMade}})</span></a></h6>
+                            <p class="time sm-text">your rate:</p>
+                            <p class="rate"><i class="ion-android-star"></i><span>{{c.rating|floatformat:"1"}}</span> /10</p>
+                            <p class="time sm-text">your reviews:</p>
+                            
+                                <h6>{{c.body|slice:"5"}}</h6>
+                                <p class="time sm">{{c.created}}</p>
+                                <p>{{c.body}}</p>                            
+                                
+                        </div>
+                    </div>
+                {% endfor %}
+             
+                <div class="topbar-filter">
+
+                    <label>Movies per page:</label>
+                    <select>
+                        <option value="range">20 Movies</option>
+                        <option value="saab">10 Movies</option>
+                    </select>
+                    <div class="pagination2">
+                        <span>Page 1 of 1:</span>
+                        <a class="active" href="#">1</a>
+                        <a href="#"><i class="ion-arrow-right-b"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+    {% block sc %}
+        <script src="js/jquery.js"></script>
+        <script src="js/plugins.js"></script>
+        <script src="js/plugins2.js"></script>
+        <script src="js/custom.js"></script>
+    {% endblock sc %}
+
+
+{% endblock content %}

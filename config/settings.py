@@ -29,7 +29,9 @@ INSTALLED_APPS = [
     'comments',
     'profiles',
     'playlists',
-]
+    # 'azbankgateways',
+
+] 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -52,17 +52,81 @@
 							<div><a href="https://www.youtube.com/embed/o-0hcF97wy0" class="item item-2 redbtn fancybox-media hvr-grow"><i class="ion-play"></i></a></div>
 						</div>
 						<div class="btn-transform transform-vertical">
-							<div><a href="#" class="item item-1 yellowbtn"> <i class="ion-card"></i> Buy ticket</a></div>
+
+							<div><a   onclick="goToBuy()" > <i class="ion-card"></i> Buy ticket</a></div>
+
 							<div><a href="#" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
+
+
+							<script type="text/javascript" >
+								function goToBuy(){
+									const first_day='{{first_day}}'
+									window.location.href=`http://127.0.0.1:8000/movies/moiveSeats/11/?say=${first_day}`
+
+								}
+								
+							</script>
+
+
+							
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="col-md-8 col-sm-12 col-xs-12">
 				<div class="movie-single-ct main-content">
+
+					
+
+
 					<h1 class="bd-hd">{{movie.name}}<span> {{movie.year_made}}</span></h1>
 					<div class="social-btn">
-						<a href="#" class="parent-btn"><i class="ion-heart"></i> Add to Favorite</a>
+						
+						
+						<a  onclick="AddToFav()"  class="parent-btn" id="changeStatus">
+							{% if is_in_playlist %}
+								<i style="color: white;" class="ion-heart"></i> 
+								your Favorite 
+							{% else %}
+								<i class="ion-heart" id="secondChange"></i> 
+								Add to Favorite
+							{% endif %}
+						</a>
+
+						<script type="text/javascript" >
+
+							"{% if request.user.is_authenticated %}"
+
+								function AddToFav(){
+									const url="{% url 'addToFav' request.user.username movie.id %}"
+									$.ajax({
+										type:"GET",
+										url:url,
+										success:function(res){
+
+											const ss=$("#changeStatus")
+
+											if (res.is_added_or_not){
+												ss.html(`<i style="color: white;" class="ion-heart"></i> 
+												  your Favorite `)
+												
+
+											}else{
+												ss.html(` <i class="ion-heart" id="secondChange"></i>  Add to Favorite `)
+
+											}
+										}
+									})
+
+								}
+
+							"{% endif %}"
+
+						</script>
+
+
+
+
 						<div class="hover-bnt">
 							<a href="#" class="parent-btn"><i class="ion-android-share-alt"></i>share</a>
 							<div class="hvr-item">

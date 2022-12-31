@@ -1,0 +1,287 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}" />
+    <script src="{% static 'js/jquery.js' %}"></script>
+
+</head>
+
+
+<body>
+
+    <div class="container">
+        <div class="screen"></div>
+
+        {% for d in days %}
+            <button class="choose" onclick="changes('{{d.day_week}}')" id="{{d.day_week}}" >{{d.day_week}}</button>
+        {% endfor %}
+        <br>
+        <br>
+
+        {% for t in timesToGo %}
+            <p>{{t.time}}</p>
+        {% endfor %}
+        <br>
+        <br>
+      
+        <br>
+
+
+            <div class="row">
+
+                {% for s in seatsToGo %}
+                    {% if s.seat_status == "selected" %}
+
+                        <div onclick="clicks('{{s.number}}')"  class="seat selected" id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "occupied" %}
+                        <div   class="seat occupied"  id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "not_selected" %}
+                        <div class="seat" onclick="clicks('{{s.number}}')" id="{{s.number}}"></div>
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="row">
+
+                {% for s in SecondseatsToGo %}
+                    {% if s.seat_status == "selected" %}
+
+                        <div onclick="clicks('{{s.number}}')"  class="seat selected" id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "occupied" %}
+                        <div   class="seat occupied"  id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "not_selected" %}
+                        <div class="seat" onclick="clicks('{{s.number}}')" id="{{s.number}}"></div>
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="row">
+
+                {% for s in ThirdseatsToGo %}
+                    {% if s.seat_status == "selected" %}
+
+                        <div onclick="clicks('{{s.number}}')"  class="seat selected" id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "occupied" %}
+                        <div   class="seat occupied"  id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "not_selected" %}
+                        <div class="seat" onclick="clicks('{{s.number}}')" id="{{s.number}}"></div>
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="row">
+
+                {% for s in FourthseatsToGo %}
+                    {% if s.seat_status == "selected" %}
+
+                        <div onclick="clicks('{{s.number}}')"  class="seat selected" id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "occupied" %}
+                        <div   class="seat occupied"  id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "not_selected" %}
+                        <div class="seat" onclick="clicks('{{s.number}}')" id="{{s.number}}"></div>
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+            <div class="row">
+
+                {% for s in FifthseatsToGo %}
+                    {% if s.seat_status == "selected" %}
+
+                        <div onclick="clicks('{{s.number}}')"  class="seat selected" id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "occupied" %}
+                        <div   class="seat occupied"  id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "not_selected" %}
+                        <div class="seat" onclick="clicks('{{s.number}}')" id="{{s.number}}"></div>
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+            <div class="row">
+
+                {% for s in SixthseatsToGo %}
+                    {% if s.seat_status == "selected" %}
+
+                        <div onclick="clicks('{{s.number}}')"  class="seat selected" id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "occupied" %}
+                        <div   class="seat occupied"  id="{{s.number}}"></div>
+
+                    {% elif s.seat_status == "not_selected" %}
+                        <div class="seat" onclick="clicks('{{s.number}}')" id="{{s.number}}"></div>
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+
+
+
+
+
+            <p id="count" >count is </p>
+            <p id="money" >money is </p>
+
+            <br>
+            <br>
+            <button id="orderBtn" >Make Order</button>
+
+
+
+
+            <script type="text/javascript" >
+
+                const alls=document.querySelectorAll('.row .seat.selected');
+                
+
+                const bb=[...alls].map(item=>Number(item.id))
+                console.log(bb)
+
+
+                let getcount=$("#count")
+                let getMoney=$("#money")
+                let moviePrice="{{movie.ticket_price}}"
+
+                getcount.html(`count is ${alls.length}`)
+                getMoney.html(`money is ${alls.length*moviePrice}`)
+
+
+                $("#orderBtn").click(function(e){
+
+                    e.preventDefault()
+
+                    const day=window.location.search.split('=').slice(-1)
+
+
+                    const movieId='{{movie.id}}'
+                    const url="{% url 'makeOrder' %}"
+                    const form=new FormData()
+
+                    form.append("movieId",movieId)
+                    form.append("day",day)
+                    form.append("selectedSeats",JSON.stringify(bb))
+                    form.append("total_to_pay",alls.length*moviePrice)
+                    form.append("total_count",alls.length)
+
+                    $.ajax({
+
+                        type:"POST",
+                        url:url,
+                        contentType: false,
+                        cache: false,
+                        processData:false,
+                        data:form,
+                        success:function(res){
+
+                            console.log(res)
+
+                            const orderName=res[0].orderName
+                            const movieName=res[0].movie
+                            const seats=res[0].seats
+                            const orderStatus=res[0].orderStatus
+                            const day=res[0].day 
+                            const user='{{request.user}}'
+                            const orderId=res[0].orderId
+                            const movieId=res[0].movieId
+                            const dayId=res[0].dayId
+
+
+
+                            window.location.href=`http://127.0.0.1:8000/movies/myOrder/${user}/?orderName=${orderName}&movieName=${movieName}&seats=${seats}&orderStatus=${orderStatus}&day=${day}&orderId=${orderId}&movieId=${movieId}&dayId=${dayId}`
+                        }
+
+                    })
+
+
+
+
+                })
+
+
+
+
+                function clicks(id){
+                    
+                    
+                    const seatId=Number(id)
+                    const day=window.location.search.split('=').slice(-1)
+                    const movieId="{{movie.id}}"
+                    console.log()
+
+                    const url =`http://127.0.0.1:8000/movies/selectSeat/${movieId}/?day=${day}&number=${id}`
+
+
+                    $.ajax({
+                        type:"GET",
+                        url:url,
+                        success:function(res){
+                            //console.log(res)
+                            console.log(res)
+
+                            getcount.html(`count is ${alls.length}`)
+                            getMoney.html(`money is ${alls.length*moviePrice}`)
+                            const getSeat=$(`#${String(res.seatNumber)}`)
+
+                            if(res.status == "selected"){
+                                getSeat.addClass("selected")
+                            }else if(res.status == "not_selected"){
+                                getSeat.removeClass("selected")
+                            }
+
+                        }
+                    })
+
+                }
+
+                function changes(type){
+
+            
+
+                    const movieId="{{movie.id}}"
+
+                    const url =`http://127.0.0.1:8000/movies/moiveSeats/${movieId}/?say=${type}`
+
+                    window.location.href=url
+
+                    getcount.html(`count is ${alls.length}`)
+                    getMoney.html(`money is ${alls.length*moviePrice}`)
+                }
+               
+            </script>
+
+    
+        
+
+    </div>
+
+</body>
+</html>

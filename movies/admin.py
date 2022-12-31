@@ -1,11 +1,15 @@
 from django.contrib import admin
 from .models import (
-    Movie,Seat,Genres,Day,Time,Tag,MovieImage,MovieVideo,Actor,CompanySponser,Role
+    Movie,Seat,Genres,Day,Time,Tag,
+    MovieImage,MovieVideo,Actor,
+    CompanySponser,Role,
+    Order
+    
 )
 from django.db.models import Avg
 from comments.models import Comment
 
-admin.site.register([Seat,Genres,Day,Time,Tag,MovieImage,MovieVideo,Actor,CompanySponser,Role])
+admin.site.register([Genres,Day,Time,Tag,MovieImage,MovieVideo,Actor,CompanySponser,Role,Order])
 
 
 class MovieAdmin(admin.ModelAdmin):
@@ -18,6 +22,12 @@ class MovieAdmin(admin.ModelAdmin):
     
     def genres_are(self,obj):
         return [i.genres_name for i in obj.genre.all() ]
+
+
+class AdminSeat(admin.ModelAdmin):
+    list_display=["movie","number","seat_status"]
+
+admin.site.register(Seat,AdminSeat)
 
 
 admin.site.register(Movie,MovieAdmin)

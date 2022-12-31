@@ -50,7 +50,7 @@
 
 			<div class="col-md-9 col-sm-12 col-xs-12">
 				<div class="form-style-1 user-pro" action="#">
-					<form action="" method="post" class="user">
+					<form action="" method="post" class="user" enctype="multipart/form-data">
 						{% csrf_token %}
 
 						<h4>01. Profile details</h4>
@@ -84,6 +84,18 @@
 								{{ProfileForm.state}}
 							</div>
 						</div>
+
+						<div class="row">
+							<div class="col-md-6 form-it">
+								<label>Avatar</label>
+								<img src="{{profile.image.url}}" height="50px" width="50px" alt="">
+								<br>
+								<br>
+								{{ProfileForm.image}}
+							</div>
+							
+						</div>
+
 						<div class="row">
 							<div class="col-md-2">
 								<input class="submit" type="submit" value="save">

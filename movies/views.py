@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,get_object_or_404
-from .models import Movie,Genres
+from .models import Movie,Genres,Seat,Day,Order
 from django.views.generic import ListView,DetailView
 from django.http import JsonResponse
 from django.db.models import Q,Avg
@@ -23,12 +23,16 @@ from django.contrib.sites.shortcuts  import get_current_site
 from django.template.loader import render_to_string
 from .utils import handle_paginnator,full_list,moreItems
 from datetime import datetime
+from playlists.models import PlayList
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 
 
 
 def movieList(request):
 
-    movies=Movie.objects. prefetch_related("genre","tag","days","times","booked_seats"
+    movies=Movie.objects. prefetch_related("genre","tag","days"
         ).annotate(avg=Avg("comment__rating")).all().order_by("-timeAdded")
 
     for m in movies:
@@ -88,8 +92,18 @@ class  MovieDetail(View):
         
 
 
-        movie=Movie.objects. prefetch_related("genre","tag","days","times","booked_seats"
+        movie=Movie.objects. prefetch_related("genre","tag","days",
         ).get(pk=movie_id)
+        days=movie.days.all().filter(movie=movie)
+
+        all_days=[]
+
+        first_day=''
+
+        for d in days:
+            all_days.append(d)
+        
+        first_day=all_days[0].day_week
 
 
             
@@ -171,7 +185,7 @@ class  MovieDetail(View):
             related_movies=Movie.objects.select_related(
                         "parent","sponsor"
                     ).prefetch_related(
-                        "genre","tag","days","times","booked_seats"
+                        "genre","tag","days",
                     ).annotate(
                         avg=Avg("comment__rating")).filter(
                         ~Q(id=movie.id) &Q(genre__in=movie_genres_ids)
@@ -181,13 +195,23 @@ class  MovieDetail(View):
 
 
         related_movies_count=Movie.objects.prefetch_related(
-            "genre","tag","days","times","booked_seats"
+            "genre","tag","days"
         ). exclude(
                 parent=None
         ). filter(
 
             ~Q(id=movie.id) &Q(genre__in=movie_genres_ids)
         )
+
+        is_in_playlist=False
+        if self.request.user.is_authenticated:
+            plays=PlayList.objects.select_related("user").prefetch_related("movies").filter(user=self.request.user)
+            if plays.exists():
+                alls=PlayList.objects.select_related("user").prefetch_related("movies").get(user=self.request.user)
+                if movie in alls.movies.all():
+                    is_in_playlist=True
+                else:
+                    is_in_playlist=False
 
         contex={
 
@@ -204,8 +228,8 @@ class  MovieDetail(View):
             'last_comment':last_comment,
             'related_movies':res2,
             'related_movies_count':related_movies_count,
-
-
+            'is_in_playlist':is_in_playlist,
+            'first_day':first_day
         }
 
 
@@ -254,7 +278,7 @@ def relatedReviewView(request,movie_id):
     movie=get_object_or_404(Movie.objects.select_related(
             "parent","sponsor"
         ).prefetch_related(
-             "genre","tag","days","times","booked_seats"
+             "genre","tag","days"
     ),pk=movie_id)
 
     movie_genres_ids=[]
@@ -264,7 +288,7 @@ def relatedReviewView(request,movie_id):
     related_movies=Movie.objects.select_related(
             "parent","sponsor"
         ).prefetch_related(
-            "genre","tag","days","times","booked_seats"
+            "genre","tag","days"
         ).annotate(
             avg=Avg("comment__rating")).filter(
 
@@ -272,7 +296,7 @@ def relatedReviewView(request,movie_id):
         )
     
     related_movies_count=Movie.objects.prefetch_related(
-            "genre","tag","days","times","booked_seats"
+            "genre","tag","days"
         ). exclude(
                 parent=None
         ). filter(
@@ -317,7 +341,7 @@ class AllMoviesView(View):
             movies=Movie.objects.select_related(
                     "sponsor","parent"
                 ).prefetch_related(
-                "genre","tag","days","times","booked_seats"
+                "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).all().order_by(how_to_order)
@@ -370,7 +394,7 @@ class AllListMoviesView(View):
             movies=Movie.objects.select_related(
                     "sponsor","parent"
                 ).prefetch_related(
-                "genre","tag","days","times","booked_seats"
+                "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).all().order_by(how_to_order)
@@ -425,7 +449,7 @@ class AllMovieSearch(View):
              movies=Movie.objects.select_related(
                     "parent","sponsor"
                 ).prefetch_related(
-                    "genre","tag","days","times","booked_seats"
+                    "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).filter(
@@ -442,7 +466,7 @@ class AllMovieSearch(View):
             movies=Movie.objects.select_related(
                     "parent","sponsor"
                 ).prefetch_related(
-                    "genre","tag","days","times","booked_seats"
+                    "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).filter(
@@ -460,7 +484,7 @@ class AllMovieSearch(View):
             movies=Movie.objects.select_related(
                     "parent","sponsor"
                 ).prefetch_related(
-                    "genre","tag","days","times","booked_seats"
+                    "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).filter(
@@ -495,7 +519,7 @@ class AllMovieSearch(View):
             movies=Movie.objects.select_related(
                     "parent","sponsor"
                 ).prefetch_related(
-                    "genre","tag","days","times","booked_seats"
+                    "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).filter(
@@ -570,7 +594,7 @@ class AllListMoviesSearch(View):
              movies=Movie.objects.select_related(
                     "parent","sponsor"
                 ).prefetch_related(
-                    "genre","tag","days","times","booked_seats"
+                    "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).filter(
@@ -587,7 +611,7 @@ class AllListMoviesSearch(View):
             movies=Movie.objects.select_related(
                     "parent","sponsor"
                 ).prefetch_related(
-                    "genre","tag","days","times","booked_seats"
+                    "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).filter(
@@ -605,7 +629,7 @@ class AllListMoviesSearch(View):
             movies=Movie.objects.select_related(
                     "parent","sponsor"
                 ).prefetch_related(
-                    "genre","tag","days","times","booked_seats"
+                    "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).filter(
@@ -622,7 +646,7 @@ class AllListMoviesSearch(View):
             movies=Movie.objects.select_related(
                     "parent","sponsor"
                 ).prefetch_related(
-                    "genre","tag","days","times","booked_seats"
+                    "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).filter(
@@ -640,7 +664,7 @@ class AllListMoviesSearch(View):
             movies=Movie.objects.select_related(
                     "parent","sponsor"
                 ).prefetch_related(
-                    "genre","tag","days","times","booked_seats"
+                    "genre","tag","days"
                 ).annotate(
                     avg=Avg("comment__rating")
                 ).filter(
@@ -677,3 +701,364 @@ class AllListMoviesSearch(View):
 
         return render(request,"movies/allListMoviesSearch.html",contex)
         
+
+
+
+
+
+
+def SeatsView(request,movie_id):
+
+    movie=Movie.objects.select_related(
+        "sponsor","parent"
+    ).prefetch_related(
+        "genre","tag","days"
+    ).get(id=movie_id)
+
+
+    days=movie.days.all().filter(movie=movie)
+    daysToGo=[]
+    for d in days:
+        daysToGo.append(d.day_week)
+    
+    # print("Days",days)
+    saturdays=[]
+    sundays=[]
+    mondays=[]
+    tuesdays=[]
+    wednesdays=[]
+    thursdays=[]
+    fridays=[]
+
+
+    timeForSuns=[]
+    timeForSat=[]
+    timeForMon=[]
+    timeForTues=[]
+    timeForWed=[]
+    timeForThu=[]
+    timeForFirs=[]
+
+
+
+    for d in days:
+        match d.day_week:
+
+            case "Saturday":
+                # print("Called")
+                for s in d.seats.all().filter(movie=movie,day=d):
+                    saturdays.append(s)
+                for t in d.times.all():
+                    timeForSat.append(t)
+
+            case "Sunday":
+                for s in d.seats.all().filter(movie=movie,day=d):
+                    sundays.append(s)
+                for t in d.times.all():
+                    timeForSuns.append(t)
+
+            case "Monday":
+                # print("Its mondy")
+                for s in d.seats.all().filter(movie=movie):
+                    mondays.append(s)
+                    # print(s)
+                for t in d.times.all():
+                    timeForMon.append(t)
+            
+
+            case "Tuesday":
+                for s in d.seats.all().filter(movie=movie,day=d):
+                    tuesdays.append(s)
+                for t in d.times.all():
+                    timeForTues.append(t)
+
+            case "Wednesday":
+                for s in d.seats.all().filter(movie=movie,day=d):
+                    wednesdays.append(s)
+                for t in d.times.all():
+                    timeForWed.append(t)
+
+            
+            case "Thursdays":
+                for s in d.seats.all().filter(movie=movie,day=d):
+                    thursdays.append(s)
+                for t in d.times.all():
+                    timeForThu.append(t)
+
+
+            case "Friday":
+                print("SECOND CALLSEd")
+                for s in d.seats.all().filter(movie=movie,day=d):
+                    fridays.append(s)
+                for t in d.times.all():
+                    timeForFirs.append(t)
+
+    print("Mondau",mondays)
+    a=request.GET.get("say")
+    seatsToGo=None
+    timesToGo=None
+
+    if a=="Sunday":
+        seatsToGo=sundays
+        timesToGo=timeForSuns
+
+    elif a=="Saturday":
+        seatsToGo=saturdays
+        timesToGo=timeForSat
+
+    elif a=="Monday":
+        seatsToGo=mondays
+        timesToGo=timeForMon
+
+    
+    elif a=="Tuesday":
+        seatsToGo=tuesdays
+        timesToGo=timeForTues
+    
+    elif a=="Wednesday":
+        seatsToGo=wednesdays
+        timesToGo=timeForWed
+
+    elif a=="Friday":
+        seatsToGo=fridays
+        timesToGo=timeForFirs
+
+    elif a=="Thursday":
+        seatsToGo=thursdays
+        timesToGo=timeForThu
+
+    contex={
+        
+        'days':days,
+        "seatsToGo":seatsToGo[:8],
+        "SecondseatsToGo":seatsToGo[8:16],
+        "ThirdseatsToGo":seatsToGo[16:24],
+        "FourthseatsToGo":seatsToGo[24:32],
+        "FifthseatsToGo":seatsToGo[32:40],
+        "SixthseatsToGo":seatsToGo[40:48],
+
+
+
+        "timesToGo":timesToGo,
+        "movie":movie,
+        # 'daysToGo':daysToGo
+
+    }
+
+    
+
+    return render(request,"movies/secondSeat.html",contex)
+
+
+
+
+
+def selectSeat(request,movie_id):
+
+    movie=Movie.objects.select_related(
+        "sponsor","parent"
+    ).prefetch_related(
+        "genre","tag","days"
+    ).get(id=movie_id)
+
+    day=request.GET.get("day","Friday")
+    number=request.GET.get("number",1)
+
+    print(number,"NNUUUUUUUUUUUUUUUMMMBEr",type(number))
+
+    days=movie.days.all().filter(movie=movie)
+
+    timeForFoundDay=[]
+    seatForFoundDay=[]
+
+    for d in days:
+        if d.day_week==day:            
+                for t in d.times.all():
+                    timeForFoundDay.append(t)
+                for s in d.seats.all().filter(movie=movie,day=d):
+                    seatForFoundDay.append(s)
+    status=None
+
+    mm=None
+
+    for s in seatForFoundDay:
+        
+        # print(g)
+        if s.number==int(number):
+        
+            g=s.__class__.objects.get(number=int(number),movie=movie,day=s.day)
+            mm=g
+
+
+    counts=0
+    if mm.seat_status=='not_selected':
+        mm.seat_status="selected"
+        mm.save()
+        counts+=1
+        status="selected"
+        print("SAVED")
+    elif mm.seat_status=="selected":
+        mm.seat_status="not_selected"
+        mm.save()
+        print("SECOND SAVED")
+        status="not_selected"
+    mm.save()
+   
+    
+
+    return JsonResponse({
+
+        "status":status,
+        "counts":counts,
+        "seatNumber":mm.number
+
+
+    })
+
+
+
+
+
+ 
+@csrf_exempt
+def makeOrder(request):
+
+    if request.method=="POST":
+
+        movieId=request.POST.get("movieId")
+        day=request.POST.get("day")
+        selectedSeats=request.POST.get("selectedSeats")
+        total_to_pay=request.POST.get("total_to_pay")
+        total_count=request.POST.get("total_count")
+        
+
+        
+        parsedSeats=json.loads(selectedSeats)
+
+        movie=get_object_or_404(Movie.objects.select_related("parent","sponsor").prefetch_related(
+            "genre","tag","days"
+        ),id=movieId)
+
+        d=Day.objects.select_related("movie").prefetch_related("seats").get(day_week=day,movie=movie)
+
+        # numbers=[4,5,8]
+        seats=Seat.objects.filter(number__in=parsedSeats,movie=movie,day=d)
+
+        z=[]
+
+        for s in seats:
+            z.append(s.number)
+
+        order=Order(
+            user=request.user,ip_address=request.META.get("REMOTE_ADDR"),
+            movie_title=movie.name,seat_number=json.dumps(z),order_status=3,
+            show_day=d.day_week,total_to_pay=total_to_pay,total_count=total_count
+        )
+        order.save()
+
+        x=[
+            {
+                "orderName":order.user.username,
+                "movie":order.movie_title,
+                "seats":json.loads(order.seat_number),
+                "orderStatus":order.order_status,
+                "day":order.show_day,
+                "orderId":order.id,
+                'total_to_pay':order.total_to_pay,
+                'total_count':order.total_count,
+
+                "movieId":movie.id,
+                "dayId":d.id
+
+            }
+        ]
+
+        return JsonResponse(x,safe=False)
+    
+
+
+
+def myOrder(request,username):
+
+    orderId=request.GET.get("orderId")
+    orderName=request.GET.get("orderName")
+    seats=request.GET.get("seats")
+    orderStatus=request.GET.get("orderStatus")
+    day=request.GET.get("day")
+    orderId=request.GET.get("orderId")
+    movieId=request.GET.get("movieId")
+    dayId=request.GET.get("dayId")
+
+    movie=Movie.objects.select_related("parent","sponsor").prefetch_related(
+        "genre","tag","days"
+    ).get(id=movieId)
+
+    day=Day.objects.get(id=dayId,movie=movie)
+
+
+
+
+    user=User.objects.get(username=username)
+    order=Order.objects.select_related("user").get(user=user,id=int(orderId))
+
+    x=json.loads(order.seat_number)
+
+    seatsToSend=Seat.objects.filter(number__in=x,movie=movie,day=day)
+    seatsId=[]
+    for s in seatsToSend:
+        seatsId.append(s.id)
+
+
+    
+    
+    print("$$$$$$$$$$$$$$$$$$$$")
+    print("$$$$$$$$$$$$$$$$$$$$")
+    print(seatsId)
+    print("$$$$$$$$$$$$$$$$$$$$")
+    print("$$$$$$$$$$$$$$$$$$$$")
+    print("$$$$$$$$$$$$$$$$$$$$")
+
+
+
+    b=' , '.join([str(i) for i in x])
+
+    request.session["money"]=order.total_to_pay
+
+    request.session["seatsIds"]=json.dumps(seatsId)
+
+    contex={
+
+        'order':order,
+        'seats':b,
+        'day':day,
+        'seatsIds':seatsId
+
+    }
+    return render(request,"movies/orders.html",contex)
+
+
+
+
+
+
+
+
+
+
+def afterPaid(request):
+
+        
+
+
+    seatsIds=request.session.get("seatsIds")
+    pased=json.loads(seatsIds)
+    seats=[]
+
+    for s in pased:
+        ss=Seat.objects.get(id=s)
+        seats.append(ss)
+    for s1 in seats:
+        s1.seat_status="occupied"
+        s1.save()
+
+    return render(request,"movies/last.html")

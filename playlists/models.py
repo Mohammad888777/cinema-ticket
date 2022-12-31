@@ -9,4 +9,7 @@ class PlayList(models.Model):
     movies=models.ManyToManyField(Movie,related_name="movies",blank=True)
     
 
+    def __str__(self) -> str:
+        return self.user.username
+
 
